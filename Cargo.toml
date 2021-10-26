@@ -1,0 +1,16 @@
+[package]
+name = "tentacle"
+description = "HTTP client to test LDServer"
+version = "0.0.1"
+authors = ["Oliver Ruebenacker <oliverr@broadinstitute.org>"]
+edition = "2018"
+readme = "README.md"
+repository = "https://github.com/broadinstitute/tentacle"
+license = "BSD-3-Clause"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+fs-err = "2.6.0"
