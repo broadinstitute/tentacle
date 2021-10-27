@@ -1,13 +1,20 @@
-mod responses;
+use crate::error::Error;
+use crate::config::Config;
 
-use crate::responses::MetaData;
+mod responses;
+mod error;
+mod http;
+mod config;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let resp = reqwest::get("http://35.232.6.190/aggregation/metadata")
-        .await?
-        .json::<MetaData>()
-        .await?;
-    println!("{:#?}", resp);
+async fn main() -> Result<(), Error> {
+    match Config::parse_config()? {
+        Config::MetaData => { print_metadata().await }
+    }
     Ok(())
+}
+
+async fn print_metadata() {
+    let resp = http::get_metadata().await;
+    println!("{:#?}", resp);
 }
