@@ -1,9 +1,11 @@
 use std::fmt::{Display, Formatter, Debug};
+use std::num::ParseIntError;
 
 #[derive(Debug)]
 pub(crate) enum Error {
     Tentacle(TentacleError),
     Reqwest(reqwest::Error),
+    ParseInt(ParseIntError)
 }
 
 #[derive(Debug)]
@@ -23,11 +25,24 @@ impl From<reqwest::Error> for Error {
     }
 }
 
+impl From<ParseIntError> for Error {
+    fn from(parse_int_error: ParseIntError) -> Self {
+        Error::ParseInt(parse_int_error)
+    }
+}
+
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::Tentacle(tentacle_error) => { Display::fmt(tentacle_error, f) }
-            Error::Reqwest(reqwest_error) => { Display::fmt(reqwest_error, f) }
+            Error::Tentacle(tentacle_error) => {
+                Display::fmt(tentacle_error, f)
+            }
+            Error::Reqwest(reqwest_error) => {
+                Display::fmt(reqwest_error, f)
+            }
+            Error::ParseInt(parse_int_error) => {
+                Display::fmt(parse_int_error, f)
+            }
         }
     }
 }
