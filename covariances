@@ -1,0 +1,1 @@
+cargo run covariances --region 1:1-1000 --genome_build GRCh38 --dataset 1

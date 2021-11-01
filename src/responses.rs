@@ -1,4 +1,6 @@
 use serde::Deserialize;
+use std::collections::HashMap;
+use serde_json::value::Value;
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -9,7 +11,7 @@ pub(crate) struct MetaData {
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct Covariances {
-    data: String
+    data: CovariancesData
 }
 
 #[derive(Deserialize, Debug)]
@@ -22,3 +24,9 @@ pub(crate) struct MetaDataItem {
     summary_statistic_dataset: u32
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub(crate) struct CovariancesData {
+    #[serde(flatten)]
+    extra: HashMap<String, Value>
+}
