@@ -8,6 +8,12 @@ pub(crate) struct MetaData {
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+pub(crate) struct Covariances {
+    data: String
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct MetaDataItem {
     description: String,
     genome_build: String,
@@ -15,3 +21,4 @@ pub(crate) struct MetaDataItem {
     name: String,
     summary_statistic_dataset: u32
 }
+

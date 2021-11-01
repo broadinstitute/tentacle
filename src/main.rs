@@ -1,6 +1,5 @@
 use crate::error::Error;
-use crate::config::Config;
-use crate::region::Region;
+use crate::config::{Config, CovariancesConfig};
 use crate::requests::CovariancesRequest;
 
 mod responses;
@@ -24,8 +23,10 @@ async fn print_metadata() {
     println!("{:#?}", resp);
 }
 
-async fn get_covariances(region: Region) {
-    let request_data = CovariancesRequest::new(region);
+async fn get_covariances(config: CovariancesConfig) {
+    let request_data =
+        CovariancesRequest::new(config.region, config.summary_statistic_dataset,
+                                config.genome_build);
     let resp = http::get_covariances(request_data).await;
     println!("{:#?}", resp);
 }
