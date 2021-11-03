@@ -15,13 +15,14 @@ mod constants {
     pub(crate) const MASK_NAME: &str = "Mask for just the region";
     pub(crate) const MASK_DESCRIPTION: &str = "Mask for just the region";
     pub(crate) const MASK_GROUP_TYPE: &str = "Region";
+    pub(crate) const GROUP_NAME: &str = "the-group";
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     match Config::parse_config()? {
         Config::MetaData => { print_metadata().await }
-        Config::Covariances(region) => { get_covariances(region).await }
+        Config::Covariances(region) => { get_covariances(region).await? }
     }
     Ok(())
 }
@@ -31,18 +32,23 @@ async fn print_metadata() {
     println!("{:#?}", resp);
 }
 
-async fn get_covariances(config: CovariancesConfig) {
+async fn get_covariances(config: CovariancesConfig) -> Result<(), Error>{
     let mask_definition =
-        MaskDefinition::new(
+        MaskDefinition::new_single_group(
             constants::MASK_ID, String::from(constants::MASK_IDENTIFIER_TYPE),
             config.genome_build.clone(), String::from(constants::MASK_NAME),
             String::from(constants::MASK_DESCRIPTION),
-            String::from(constants::MASK_GROUP_TYPE)
+            String::from(constants::MASK_GROUP_TYPE),
+            String::from(constants::GROUP_NAME),
+            config.region.start, config.region.stop
         );
     let request_data =
         CovariancesRequest::new(config.region, config.summary_statistic_dataset,
                                 config.genome_build, vec![mask_definition]);
+    let request_as_string = serde_json::to_string_pretty(&request_data)?;
+    println!("{}", request_as_string);
     let resp = http::get_covariances_text(request_data).await;
     println!("{:#?}", resp);
+    Ok(())
 }
 

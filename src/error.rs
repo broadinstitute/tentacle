@@ -5,7 +5,8 @@ use std::num::ParseIntError;
 pub(crate) enum Error {
     Tentacle(TentacleError),
     Reqwest(reqwest::Error),
-    ParseInt(ParseIntError)
+    ParseInt(ParseIntError),
+    SerdeJson(serde_json::Error)
 }
 
 #[derive(Debug)]
@@ -31,6 +32,12 @@ impl From<ParseIntError> for Error {
     }
 }
 
+impl From<serde_json::Error> for Error {
+    fn from(serde_json_error: serde_json::Error) -> Self {
+        Error::SerdeJson(serde_json_error)
+    }
+}
+
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -42,6 +49,9 @@ impl Display for Error {
             }
             Error::ParseInt(parse_int_error) => {
                 Display::fmt(parse_int_error, f)
+            }
+            Error::SerdeJson(serde_json_error) => {
+                Display::fmt(serde_json_error, f)
             }
         }
     }
