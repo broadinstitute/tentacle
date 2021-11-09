@@ -12,24 +12,17 @@ pub(crate) async fn get_metadata() -> Result<MetaData, Error> {
 
 pub(crate) async fn get_covariances(request_data: CovariancesRequest) -> Result<Covariances, Error> {
     let client = reqwest::Client::new();
-    let covariances = client.post("http://35.232.6.190/aggregation/covariance")
+    let response = client.post("http://35.232.6.190/aggregation/covariance")
         .json(&request_data)
         .send()
-        .await?
-        .json::<Covariances>()
         .await?;
-    Ok(covariances)
+    let http_status = response.status();
+    if http_status.is_success() {
+        let covariances = response.json::<Covariances>().await?;
+        Ok(covariances)
+    } else {
+        let body = response.text().await?;
+        let message = format!("HTTP status {}\n{}", http_status.as_str(), body);
+        Err(Error::from(message))
+    }
 }
-
-pub(crate) async fn get_covariances_text(request_data: CovariancesRequest)
-    -> Result<String, Error> {
-    let client = reqwest::Client::new();
-    let covariances = client.post("http://35.232.6.190/aggregation/covariance")
-        .json(&request_data)
-        .send()
-        .await?
-        .text()
-        .await?;
-    Ok(covariances)
-}
-

@@ -1,6 +1,7 @@
 use crate::error::Error;
 use crate::config::{Config, CovariancesConfig};
 use crate::requests::{CovariancesRequest, MaskDefinition};
+use crate::responses::Covariances;
 
 mod responses;
 mod error;
@@ -14,7 +15,7 @@ mod constants {
     pub(crate) const MASK_IDENTIFIER_TYPE: &str = "COORDINATES";
     pub(crate) const MASK_NAME: &str = "Mask for just the region";
     pub(crate) const MASK_DESCRIPTION: &str = "Mask for just the region";
-    pub(crate) const MASK_GROUP_TYPE: &str = "Region";
+    pub(crate) const MASK_GROUP_TYPE: &str = "REGION";
     pub(crate) const GROUP_NAME: &str = "the-group";
 }
 
@@ -47,8 +48,21 @@ async fn get_covariances(config: CovariancesConfig) -> Result<(), Error>{
                                 config.genome_build, vec![mask_definition]);
     let request_as_string = serde_json::to_string_pretty(&request_data)?;
     println!("{}", request_as_string);
-    let resp = http::get_covariances_text(request_data).await;
-    println!("{:#?}", resp);
+    let response_res = http::get_covariances(request_data).await;
+    match response_res {
+        Ok(response) => {
+            let data = &response.data;
+            println!("{} variants, {} groups", &data.variants.len(), &data.groups.len());
+            for group in &data.groups {
+                println!("Group {}, {} variants, {} covariances", group.group,
+                         group.variants.len(), group.covariance.len())
+            }
+            println!("{:#?}", &response);
+        }
+        Err(error) => {
+            println!("{}", error)
+        }
+    }
     Ok(())
 }
 
