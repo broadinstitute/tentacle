@@ -1,7 +1,6 @@
 use crate::error::Error;
 use crate::config::{Config, CovariancesConfig};
 use crate::requests::{CovariancesRequest, MaskDefinition};
-use crate::responses::Covariances;
 
 mod responses;
 mod error;
@@ -9,6 +8,7 @@ mod http;
 mod config;
 mod requests;
 mod region;
+mod variant;
 
 mod constants {
     pub(crate) const MASK_ID: usize = 1;
@@ -22,8 +22,12 @@ mod constants {
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     match Config::parse_config()? {
-        Config::MetaData => { print_metadata().await }
-        Config::Covariances(region) => { get_covariances(region).await? }
+        Config::MetaData => {
+            print_metadata().await
+        }
+        Config::Covariances(covariances_config) => {
+            get_covariances(covariances_config).await?
+        }
     }
     Ok(())
 }
@@ -48,19 +52,31 @@ async fn get_covariances(config: CovariancesConfig) -> Result<(), Error>{
                                 config.genome_build, vec![mask_definition]);
     let request_as_string = serde_json::to_string_pretty(&request_data)?;
     println!("{}", request_as_string);
-    let response_res = http::get_covariances(request_data).await;
-    match response_res {
-        Ok(response) => {
-            let data = &response.data;
-            println!("{} variants, {} groups", &data.variants.len(), &data.groups.len());
-            for group in &data.groups {
-                println!("Group {}, {} variants, {} covariances", group.group,
-                         group.variants.len(), group.covariance.len())
+    if !config.raw {
+        let response_res = http::get_covariances_parsed(request_data).await;
+        match response_res {
+            Ok(response) => {
+                let data = &response.data;
+                println!("{} variants, {} groups", &data.variants.len(), &data.groups.len());
+                for group in &data.groups {
+                    println!("Group {}, {} variants, {} covariances", group.group,
+                             group.variants.len(), group.covariance.len())
+                }
+                println!("{:#?}", &response);
             }
-            println!("{:#?}", &response);
+            Err(error) => {
+                println!("{}", error)
+            }
         }
-        Err(error) => {
-            println!("{}", error)
+    } else {
+        let response_res = http::get_covariances_raw(request_data).await;
+        match response_res {
+            Ok(response) => {
+                println!("{}", response);
+            }
+            Err(error) => {
+                println!("{}", error)
+            }
         }
     }
     Ok(())

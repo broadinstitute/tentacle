@@ -11,6 +11,7 @@ pub(crate) struct CovariancesConfig {
     pub(crate) region: Region,
     pub(crate) summary_statistic_dataset: usize,
     pub(crate) genome_build: String,
+    pub(crate) raw: bool
 }
 
 mod names {
@@ -19,6 +20,7 @@ mod names {
     pub(crate) const REGION_ARG: &str = "region";
     pub(crate) const DATASET_ARG: &str = "dataset";
     pub(crate) const GENOME_BUILD_ARG: &str = "genome_build";
+    pub(crate) const RAW_ARG: &str = "raw";
 }
 
 impl Config {
@@ -50,6 +52,9 @@ impl Config {
                     .takes_value(true)
                     .value_name(names::GENOME_BUILD_ARG)
                 )
+                .arg(Arg::with_name(names::RAW_ARG)
+                    .long(names::RAW_ARG)
+                )
             );
         let matches = app.get_matches();
         if matches.subcommand_matches(names::METADATA_CMD).is_some() {
@@ -71,9 +76,10 @@ impl Config {
                     .ok_or_else(|| Error::from(
                         format!("Missing argument '{}'.", names::GENOME_BUILD_ARG)
                     ))?);
+            let raw = covariance_matches.is_present(names::RAW_ARG);
             let covariances_config =
-                CovariancesConfig::new(region, dataset, genome_build);
-                Ok(Config::Covariances(covariances_config))
+                CovariancesConfig::new(region, dataset, genome_build, raw);
+            Ok(Config::Covariances(covariances_config))
         } else {
             Err(Error::from(
                 format!("Need to provide subcommand '{}' or '{}.", names::METADATA_CMD,
@@ -84,8 +90,8 @@ impl Config {
 }
 
 impl CovariancesConfig {
-    fn new(region: Region, summary_statistic_dataset: usize, genome_build: String)
+    fn new(region: Region, summary_statistic_dataset: usize, genome_build: String, raw: bool)
            -> CovariancesConfig {
-        CovariancesConfig { region, summary_statistic_dataset, genome_build }
+        CovariancesConfig { region, summary_statistic_dataset, genome_build, raw }
     }
 }
