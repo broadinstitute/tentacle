@@ -1,5 +1,4 @@
 use crate::error::Error;
-use std::cmp::Ordering;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd)]
 pub(crate) struct Variant {
