@@ -1,4 +1,4 @@
-use crate::responses::{MetaDataResponse, CovariancesResponse};
+use crate::responses::{MetaDataResponse, CovariancesResponse, CovariancesData};
 use crate::error::Error;
 use crate::requests::CovariancesRequest;
 use reqwest::Response;
@@ -11,18 +11,18 @@ pub(crate) async fn get_metadata() -> Result<MetaDataResponse, Error> {
     Ok(metadata)
 }
 
-async fn get_covariances_response(request_data: CovariancesRequest) -> Result<Response, Error> {
+async fn get_covariances_response(request: CovariancesRequest) -> Result<Response, Error> {
     let client = reqwest::Client::new();
     let response = client.post("http://35.232.6.190/aggregation/covariance")
-        .json(&request_data)
+        .json(&request)
         .send()
         .await?;
     Ok(response)
 }
 
-pub(crate) async fn get_covariances_parsed(request_data: CovariancesRequest)
-                                           -> Result<CovariancesResponse, Error> {
-    let response = get_covariances_response(request_data).await?;
+pub(crate) async fn get_covariances(request: CovariancesRequest)
+                                    -> Result<CovariancesResponse, Error> {
+    let response = get_covariances_response(request).await?;
     let http_status = response.status();
     if http_status.is_success() {
         let covariances = response.json::<CovariancesResponse>().await?;
@@ -34,9 +34,9 @@ pub(crate) async fn get_covariances_parsed(request_data: CovariancesRequest)
     }
 }
 
-pub(crate) async fn get_covariances_raw(request_data: CovariancesRequest)
+pub(crate) async fn get_covariances_raw(request: CovariancesRequest)
                                         -> Result<String, Error> {
-    let response = get_covariances_response(request_data).await?;
+    let response = get_covariances_response(request).await?;
     let http_status = response.status();
     if http_status.is_success() {
         let covariances = response.text().await?;
@@ -46,4 +46,8 @@ pub(crate) async fn get_covariances_raw(request_data: CovariancesRequest)
         let message = format!("HTTP status {}\n{}", http_status.as_str(), body);
         Err(Error::from(message))
     }
+}
+pub(crate) async fn get_covariance_data(request: CovariancesRequest)
+    -> Result<CovariancesData, Error> {
+    Ok(get_covariances(request).await?.data)
 }

@@ -1,6 +1,7 @@
 use serde::Serialize;
 use crate::region::Region;
 use std::collections::HashMap;
+use crate::constants;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -46,6 +47,14 @@ impl CovariancesRequest {
             mask_definitions,
         }
     }
+    pub(crate) fn new_single_group(region: Region, genome_build: String, dataset: usize)
+        -> CovariancesRequest {
+        let mask_definition =
+            MaskDefinition::new_single_group(genome_build.clone(),
+                                             region.start, region.stop);
+        CovariancesRequest::new(region, dataset, genome_build,
+                                vec![mask_definition])
+    }
 }
 
 impl MaskDefinition {
@@ -62,15 +71,16 @@ impl MaskDefinition {
             groups,
         }
     }
-    pub(crate) fn new_single_group(id: usize, identifier_type: String, genome_build: String,
-                                   name: String, description: String, group_type: String,
-                                   group_name: String, start: usize, stop: usize)
+    pub(crate) fn new_single_group(genome_build: String, start: usize, stop: usize)
                                    -> MaskDefinition {
         let group = Group::new(start, stop);
         let mut groups = HashMap::new();
-        groups.insert(group_name, group);
-        MaskDefinition::new(id, identifier_type, genome_build, name, description, group_type,
-                            groups)
+        groups.insert(String::from(constants::GROUP_NAME), group);
+        MaskDefinition::new(constants::MASK_ID,
+                            String::from(constants::MASK_IDENTIFIER_TYPE),
+                            genome_build, String::from(constants::MASK_NAME),
+                            String::from(constants::MASK_DESCRIPTION),
+                            String::from(constants::MASK_GROUP_TYPE), groups)
     }
 }
 

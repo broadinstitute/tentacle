@@ -1,5 +1,6 @@
 use crate::error::Error;
 
+#[derive(Clone)]
 pub(crate) struct Region {
     pub(crate) chrom: String,
     pub(crate) start: usize,

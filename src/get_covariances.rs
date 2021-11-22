@@ -1,25 +1,15 @@
 use crate::config::CovariancesConfig;
 use crate::error::Error;
-use crate::requests::{MaskDefinition, CovariancesRequest};
-use crate::{constants, http};
+use crate::requests::CovariancesRequest;
+use crate::http;
 
 pub(crate) async fn get_covariances(config: CovariancesConfig) -> Result<(), Error>{
-    let mask_definition =
-        MaskDefinition::new_single_group(
-            constants::MASK_ID, String::from(constants::MASK_IDENTIFIER_TYPE),
-            config.genome_build.clone(), String::from(constants::MASK_NAME),
-            String::from(constants::MASK_DESCRIPTION),
-            String::from(constants::MASK_GROUP_TYPE),
-            String::from(constants::GROUP_NAME),
-            config.region.start, config.region.stop
-        );
-    let request_data =
-        CovariancesRequest::new(config.region, config.dataset,
-                                config.genome_build, vec![mask_definition]);
-    let request_as_string = serde_json::to_string_pretty(&request_data)?;
+    let request =
+        CovariancesRequest::new_single_group(config.region, config.genome_build, config.dataset);
+    let request_as_string = serde_json::to_string_pretty(&request)?;
     println!("{}", request_as_string);
     if !config.raw {
-        let response_res = http::get_covariances_parsed(request_data).await;
+        let response_res = http::get_covariances(request).await;
         match response_res {
             Ok(response) => {
                 let data = &response.data;
@@ -35,7 +25,7 @@ pub(crate) async fn get_covariances(config: CovariancesConfig) -> Result<(), Err
             }
         }
     } else {
-        let response_res = http::get_covariances_raw(request_data).await;
+        let response_res = http::get_covariances_raw(request).await;
         match response_res {
             Ok(response) => {
                 println!("{}", response);
