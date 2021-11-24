@@ -11,6 +11,7 @@ mod variant;
 mod get_covariances;
 mod join_covariances;
 mod constants;
+mod find_common;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

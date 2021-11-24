@@ -6,7 +6,8 @@ pub(crate) enum Error {
     Tentacle(TentacleError),
     Reqwest(reqwest::Error),
     ParseInt(ParseIntError),
-    SerdeJson(serde_json::Error)
+    SerdeJson(serde_json::Error),
+    Io(std::io::Error)
 }
 
 #[derive(Debug)]
@@ -38,6 +39,12 @@ impl From<serde_json::Error> for Error {
     }
 }
 
+impl From<std::io::Error> for Error {
+    fn from(io_error: std::io::Error) -> Self {
+        Error::Io(io_error)
+    }
+}
+
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -52,6 +59,9 @@ impl Display for Error {
             }
             Error::SerdeJson(serde_json_error) => {
                 Display::fmt(serde_json_error, f)
+            }
+            Error::Io(io_error) => {
+                Display::fmt(io_error, f)
             }
         }
     }

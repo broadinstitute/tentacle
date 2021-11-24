@@ -92,6 +92,12 @@ impl Config {
                         .takes_value(true)
                         .value_name(names::DATASET_ARG2)
                     )
+                    .arg(Arg::with_name(names::GENOME_BUILD_ARG)
+                        .long(names::GENOME_BUILD_ARG)
+                        .required(true)
+                        .takes_value(true)
+                        .value_name(names::GENOME_BUILD_ARG)
+                    )
                     .arg(Arg::with_name(names::OUT_ARG)
                         .long(names::OUT_ARG)
                         .required(true)
@@ -102,7 +108,6 @@ impl Config {
                         .long(names::DRY_ARG)
                         .required(false)
                         .takes_value(false)
-                        .value_name(names::DRY_ARG)
                     )
                 );
         let matches = app.get_matches();
