@@ -54,13 +54,15 @@ pub(crate) async fn join_covariances(config: JoinCovariancesConfig)
 
 fn get_single_group(covariances_data: CovariancesData) -> Result<Group, Error> {
     let mut groups = covariances_data.groups;
-    if groups.len() != 1 {
-        Err(Error::from(
-            format!("Expected exactly one group from data set {}, but got {} groups.",
-                    covariances_data.summary_statistic_dataset, groups.len()))
-        )
-    } else {
-        Ok(groups.remove(0))
+    match groups.len() {
+        0 => { Ok(Group::new_empty()) }
+        1 => { Ok(groups.remove(0)) }
+        _ => {
+            Err(Error::from(
+                format!("Expected exactly one group from data set {}, but got {} groups.",
+                        covariances_data.summary_statistic_dataset, groups.len()))
+            )
+        }
     }
 }
 
