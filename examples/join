@@ -1,0 +1,6 @@
+region=$1
+out="$HOME/joincov/region.$region.tsv"
+echo -n "$region: "
+tentacle join_covariances --out $out --dataset1 1 --dataset2 2 --genome_build GRCh38 --dry --region $region
+tentacle join_covariances --out $out --dataset1 1 --dataset2 2 --genome_build GRCh38 --region $region
+

@@ -1,0 +1,9 @@
+for start in {1000..50818468..1000}
+do
+  end=$(($start+1000))
+  region="22:$start-$end"
+  out="$HOME/joincov/region.$region.tsv"
+  echo -n "$region: "
+  tentacle join_covariances --out $out --dataset1 1 --dataset2 2 --genome_build GRCh38 --dry --region $region
+done
+

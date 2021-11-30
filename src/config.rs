@@ -157,9 +157,9 @@ impl Config {
                         format!("Missing argument '{}'.", names::GENOME_BUILD_ARG)
                     ))?);
             let out =
-                String::from(join_covariance_matches.value_of(names::GENOME_BUILD_ARG)
+                String::from(join_covariance_matches.value_of(names::OUT_ARG)
                     .ok_or_else(|| Error::from(
-                        format!("Missing argument '{}'.", names::GENOME_BUILD_ARG)
+                        format!("Missing argument '{}'.", names::OUT_ARG)
                     ))?);
             let dry = join_covariance_matches.is_present(names::DRY_ARG);
             let join_covariances_config =
